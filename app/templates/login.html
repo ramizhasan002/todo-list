@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Log in - Todo List
+{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock css %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <div class="auth-logo">Todo List</div>
+            <div class="auth-tagline">Stay organised, stay ahead.</div>
+        </div>
+
+        <div class="auth-body">
+            <div class="auth-heading">Welcome back</div>
+            <div class="auth-sub">Sign in to your account to continue</div>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                <!-- Username or Email -->
+                <div class="field-group">
+                    <div class="field-label-row">
+                        {{ form.user_input.label(class="field-label") }}
+                    </div>
+                    {{ form.user_input(placeholder="you@example.com", class="field-input") }}
+
+                    {% for error in form.user_input.errors %}    
+                    <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+
+                <!-- Password -->
+                <div class="field-group">
+                    <div class="field-label-row">
+                        {{ form.password.label(class="field-label") }}
+                        <!-- <a href="" class="forgot-link">Forgot password?</a> -->
+                    </div>
+                    {{ form.password(placeholder="••••••••", class="field-input") }}
+
+                    {% for error in form.password.errors %}    
+                    <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+
+                <button type="submit" class="submit-btn">Log in</button>
+            </form>
+
+            <div class="auth-footer-text">
+                Don't have an account?
+            </div>
+
+            <a href="{{ url_for('auth.register') }}" class="create-acc-btn">Create account</a>
+
+        </div>
+
+    </div>
+</div>
+{% endblock content %}

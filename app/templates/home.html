@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Todo List
+{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock css %}
+
+{% block content %}
+<div class="shell">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <span class="logo">Todo List</span>
+        <div class="dd" id="main-dd">
+            <button class="icon-btn" aria-label="Menu" onclick="toggleDD('main-dd')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="20" height="20">
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                </svg>
+            </button>
+            <div class="dd-menu">
+                <form method="POST" action="{{url_for('auth.logout')}}">
+                    {{ form.hidden_tag() }}
+                    <button class="dd-item danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add task card -->
+    <form class="add-card" method="POST" action="{{url_for('tasks.add_task')}}">
+        {{ form.hidden_tag() }}
+        <!-- Title -->
+        <div class="add-title-row">
+            <input class="add-title-input" type="text" name="title" placeholder="What do you need to do?"
+                autocomplete="off" maxlength="100" required />
+        </div>
+
+        <!-- Description -->
+        <div class="add-desc-area" id="desc-area">
+            <textarea class="add-desc-input" type="text" name="description" id="desc-input"
+                placeholder="Add a description..."></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="add-footer">
+            <div class="add-actions">
+
+                <!-- Description toggle -->
+                <button class="act-btn" id="desc-btn" type="button" aria-label="Toggle description"
+                    title="Add description" onclick="toggleDesc()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" width="17" height="17">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="15" y2="18" />
+                    </svg>
+                </button>
+
+                <!-- Clock wrapper: input sits on top of button so picker opens here -->
+                <div class="clock-wrap">
+                    <button class="act-btn" id="clock-btn" type="button" aria-label="Set date and time"
+                        title="Set date & time">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </button>
+                    <input type="datetime-local" id="time_date" name="time_date" class="dt-input" />
+                </div>
+
+                <!-- Date pill — appears after user picks a date -->
+                <div class="date-pill" id="date-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" width="12" height="12">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span id="date-label"></span>
+                    <button class="date-pill-x" type="button" aria-label="Clear date"
+                        onclick="clearDate()">&#215;</button>
+                </div>
+
+            </div>
+            <button type="submit" class="add-btn">Add Task</button>
+        </div>
+    </form>
+
+    <!-- Section header -->
+    <div class="sec-header">
+        <span class="sec-label">My Tasks</span>
+        <div class="dd" id="tasks-dd">
+            <button class="icon-btn" aria-label="Task options" onclick="toggleDD('tasks-dd')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="19" cy="12" r="1" />
+                    <circle cx="5" cy="12" r="1" />
+                </svg>
+            </button>
+            <div class="dd-menu">
+                <form method="POST" action="{{url_for('tasks.delete_all_tasks')}}">
+                    {{ form.hidden_tag() }}
+                    <button class="dd-item danger" onclick="return confirm('Send all tasks to recycle bin?')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                        </svg>
+                        Delete all tasks
+                    </button>
+                </form>
+
+                <a href="{{url_for('tasks.recycle_bin')}}" class="dd-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" width="16" height="16">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    </svg>
+                    Recycle bin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active tasks -->
+    <div class="task-list">
+        {% if active_tasks %}
+
+        {% for task in active_tasks %}
+        <div class="task-card">
+
+            <div class="task-left">
+                <!-- Tick Button -->
+                <form class="circle-form" method="POST" action="{{url_for('tasks.complete_task', task_id = task.id)}}">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" class="circle" aria-label="Mark complete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Task Body -->
+            <a href="{{url_for('tasks.edit_task', task_id=task.id)}}" class="task-mid">
+                <!-- title -->
+                {% if task.title %}
+                <div class="task-title-text">{{ task.title }}</div>
+                {% endif %}
+
+                <!-- description -->
+                {% if task.description %}
+                <div class="task-desc-text">{{ task.description }}</div>
+                {% endif %}
+
+                <!-- time -->
+                {% if task.time_date %}
+                <div class="task-date-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" width="11" height="11">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    {{ task.time_date.strftime('%I:%M %p, %d %b')}}
+                </div>
+                {% endif %}
+            </a>
+
+            <div class="task-right">
+                <!-- Edit Button -->
+                <a href="{{url_for('tasks.edit_task', task_id=task.id)}}" class="edit-btn" aria-label="Edit task">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" width="14" height="14">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" width="36" height="36">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+            <p>No tasks yet. Add one above!</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- Completed accordion -->
+    <div class="accordion">
+        <button type="button" class="acc-toggle" id="acc-btn" onclick="toggleAcc()">
+            <span>Completed <span class="acc-count">({{completed_tasks|length}})</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </button>
+
+        <div class="acc-body" id="acc-body">
+            {% for task in completed_tasks %}
+            <div class="comp-item">
+                <form method="POST" action="{{url_for('tasks.uncomplete_task', task_id = task.id)}}">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" class="circle done" aria-label="Mark as pending">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </button>
+                </form>
+                <div class="comp-body">
+                    <div class="comp-title">{{task.title}}</div>
+
+                    <div class="comp-date">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {{ task.time_date.strftime('%I:%M %p, %d %b')}}
+                    </div>
+
+                </div>
+                <form method="POST" action="{{url_for('tasks.delete_task', task_id=task.id )}}"
+                    aria-label="Move to recycle bin">
+                    {{ form.hidden_tag() }}
+
+                    <input type="hidden" name="source" value="completed_tasks">
+
+                    <button type="submit" class="del-btn">Delete</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+</div>
+{% endblock content %}
